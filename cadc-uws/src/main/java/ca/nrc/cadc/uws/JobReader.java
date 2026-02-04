@@ -353,31 +353,30 @@ public class JobReader {
         Element e = root.getChild(JobAttribute.JOB_INFO.getValue(), UWS.NS);
         if (e != null) {
             log.debug("found jobInfo element");
-            String content = e.getText();
-            List children = e.getChildren();
-            if (content != null) {
-                content = content.trim();
-            }
-            if (content.length() > 0) {
-                rtn = new JobInfo(content, null, null);
-            } else if (children != null) {
-                if (children.size() == 1) {
-                    try {
-                        Element ce = (Element) children.get(0);
-                        Document jiDoc = new Document((Element) ce.detach());
-                        XMLOutputter outputter = new XMLOutputter();
-                        StringWriter sw = new StringWriter();
-                        outputter.output(jiDoc, sw);
-                        sw.close();
-                        rtn = new JobInfo(sw.toString(), null, null);
+            List<String> contentList = new ArrayList<>();
 
-                    } catch (IOException ex) {
-                        throw new RuntimeException("BUG while writing element to string", ex);
-                    }
+            List<Element> children = e.getChildren();
+            for (Element child : children) {
+                try {
+                    Document jiDoc = new Document(child.clone());
+                    XMLOutputter outputter = new XMLOutputter();
+                    StringWriter sw = new StringWriter();
+                    outputter.output(jiDoc, sw);
+                    sw.close();
+
+                    contentList.add(sw.toString());
+                } catch (IOException ex) {
+                    throw new RuntimeException("BUG while writing jobInfo child to string", ex);
                 }
             }
+
+            if (contentList.isEmpty()) {
+                return null;
+            }
+
+            rtn = new JobInfo(contentList, null, null);
+            log.debug("parseJobInfo: " + rtn);
         }
-        log.debug("parseJobInfo: " + rtn);
         return rtn;
     }
 

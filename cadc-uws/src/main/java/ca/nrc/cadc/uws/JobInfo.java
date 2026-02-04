@@ -69,27 +69,29 @@
 
 package ca.nrc.cadc.uws;
 
+import java.util.List;
+
 /**
  *
  * @author jburke
  */
 public class JobInfo {
 
-    private String content;
+    private List<String> content;
     private String contentType;
     private Boolean valid;
 
-    public JobInfo(String content, String contentType, Boolean valid) {
+    public JobInfo(List<String> content, String contentType, Boolean valid) {
         this.content = content;
         this.contentType = contentType;
         this.valid = valid;
     }
 
-    public void setContent(String content) {
+    public void setContent(List<String> content) {
         this.content = content;
     }
 
-    public String getContent() {
+    public List<String> getContent() {
         return content;
     }
 
