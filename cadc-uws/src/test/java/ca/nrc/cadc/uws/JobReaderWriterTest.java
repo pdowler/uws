@@ -112,7 +112,7 @@ public class JobReaderWriterTest {
         Log4jInit.setLevel("ca.nrc.cadc", Level.INFO);
     }
 
-    //@Test
+    @Test
     public void testDateRoundTripCompat() throws Exception {
         Date orig = new Date();
         DateFormat ivoaFmt = DateUtil.getDateFormat(DateUtil.IVOA_DATE_FORMAT, DateUtil.UTC);
@@ -302,7 +302,7 @@ public class JobReaderWriterTest {
         assertEquals(job, job2);
     }
 
-    //@Test
+    @Test
     public void testPending() {
         log.debug("testPending");
         try {
@@ -315,7 +315,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testQueued() {
         log.debug("testQueued");
         try {
@@ -328,7 +328,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testExecuting() {
         log.debug("testExecuting");
         try {
@@ -341,7 +341,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testCompleted() {
         log.debug("testCompleted");
         try {
@@ -354,7 +354,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testWithOwnerID() {
         log.debug("testWithOwner");
         try {
@@ -367,7 +367,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testFailed() {
         log.debug("testFailed");
         try {
@@ -380,7 +380,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testWithValidJobInfo() {
         log.debug("testWithValidJobInfo");
         try {
@@ -396,7 +396,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testWithInvalidJobInfo() {
         log.debug("testWithInvalidJobInfo");
         try {
@@ -412,7 +412,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testWithEmptyJobParameter() {
         log.debug("testWithEmptyJobParameter");
         try {
@@ -433,7 +433,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testJobReaderWithInvalidJobInfoDocument() {
         log.debug("testJobReaderWithInvalidJobInfoDocument");
         try {
@@ -467,7 +467,7 @@ public class JobReaderWriterTest {
         }
     }
 
-    //@Test
+    @Test
     public void testJobReaderWithValidJobInfoDocument() {
         log.debug("testJobReaderWithValidJobInfoDocument");
         try {
