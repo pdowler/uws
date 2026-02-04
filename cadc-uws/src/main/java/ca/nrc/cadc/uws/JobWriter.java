@@ -457,9 +457,8 @@ public class JobWriter {
                 element = new Element(JobAttribute.JOB_INFO.getValue(), UWS.NS);
 
                 ContentType ct = new ContentType(jobInfo.getContentType());
-                boolean isXml = ct.getBaseType().endsWith("xml");
 
-                if (!isXml) {
+                if (!ct.getBaseType().endsWith("xml")) { // treat as plain text
                     String merged = jobInfo.getContent().stream().filter(s -> s != null && !s.isBlank())
                             .collect(Collectors.joining("\n"));
 
