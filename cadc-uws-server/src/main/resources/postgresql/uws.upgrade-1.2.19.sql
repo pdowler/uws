@@ -1,3 +1,12 @@
 ALTER TABLE <schema>.Job
-ALTER COLUMN jobInfo_content TYPE text[]
-USING CASE WHEN jobInfo_content IS NULL THEN NULL ELSE ARRAY[jobInfo_content] END;
+ADD COLUMN jobInfo_content_arr text[];
+
+UPDATE <schema>.Job
+SET jobInfo_content_arr = ARRAY[jobInfo_content]
+WHERE jobInfo_content IS NOT NULL;
+
+ALTER TABLE <schema>.Job
+DROP COLUMN jobInfo_content;
+
+ALTER TABLE <schema>.Job
+RENAME COLUMN jobInfo_content_arr TO jobInfo_content;
