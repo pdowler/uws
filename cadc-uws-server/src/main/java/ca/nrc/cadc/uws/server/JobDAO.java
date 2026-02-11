@@ -89,6 +89,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessController;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -96,6 +97,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -920,6 +922,21 @@ public class JobDAO {
         return 2;
     }
 
+    private int setStringArray(PreparedStatement ps, int col, Array values, StringBuilder sb) throws SQLException {
+        if (values == null) {
+            ps.setNull(col, Types.ARRAY);
+            sb.append("null,");
+            return 1;
+        }
+
+        ps.setArray(col, values);
+
+        sb.append(values);
+        sb.append(",");
+
+        return 1;
+    }
+
     class JobDeleteStatementCreator implements PreparedStatementCreator {
 
         private String jobID;
@@ -963,11 +980,11 @@ public class JobDAO {
         public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
             log.debug(sql);
             PreparedStatement prep = conn.prepareStatement(sql);
-            loadValues(prep);
+            loadValues(prep, conn);
             return prep;
         }
 
-        private void loadValues(PreparedStatement ps)
+        private void loadValues(PreparedStatement ps, Connection conn)
                 throws SQLException {
             StringBuilder sb = new StringBuilder();
 
@@ -1088,15 +1105,15 @@ public class JobDAO {
             col += setString(ps, col, jobSchema.jobTable, "remoteIP", job.getRemoteIP(), sb);
 
             log.debug("jobInfo: " + col);
-            String jiContent = null;
+            List<String> jiContent = null;
             String jiContentType = null;
 
             if (job.getJobInfo() != null) {
                 jiContent = job.getJobInfo().getContent();
                 jiContentType = job.getJobInfo().getContentType();
-
             }
-            col += setString(ps, col, jobSchema.jobTable, "jobInfo_content", jiContent, sb);
+            Array jiContentArray = jiContent == null ? null : conn.createArrayOf("text", jiContent.toArray(new String[0]));
+            col += setStringArray(ps, col, jiContentArray, sb);
             col += setString(ps, col, jobSchema.jobTable, "jobInfo_contentType", jiContentType, sb);
             if (job.getJobInfo() != null && job.getJobInfo().getValid() != null) {
                 int jiValid = 0;
@@ -1641,6 +1658,29 @@ public class JobDAO {
     // extract a single job job from the result set
     private class JobExtractor implements ResultSetExtractor {
 
+        /**
+         * Get the text[] value from the specified column. The default implementation
+         * simply calls rs.getString(columnName). It returns null if the column value is null.
+         *
+         * @param rs
+         * @param tableName
+         * @param columnName
+         * @return
+         * @throws SQLException
+         */
+        protected List<String> getStringArray(ResultSet rs, String tableName, String columnName)
+                throws SQLException {
+            Array valueArray = rs.getArray(columnName);
+            if (valueArray == null) {
+                String extCol = jobSchema.getAlternateColumn(tableName, columnName);
+                if (extCol != null) {
+                    valueArray = rs.getArray(extCol);
+                }
+            }
+
+            return valueArray == null ? null : Arrays.asList((String[]) valueArray.getArray());
+        }
+
         private JobSchema js;
 
         public JobExtractor(JobSchema js) {
@@ -1680,22 +1720,22 @@ public class JobDAO {
                 String runID = getString(rs, jobSchema.jobTable, "runID");
                 String requestPath = getString(rs, jobSchema.jobTable, "requestPath");
                 String remoteIP = getString(rs, jobSchema.jobTable, "remoteIP");
-                String content = getString(rs, jobSchema.jobTable, "jobInfo_content");
+                List<String> contentList = getStringArray(rs, jobSchema.jobTable, "jobInfo_content");
                 String contentType = getString(rs, jobSchema.jobTable, "jobInfo_contentType");
 
                 // JobInfo valid
                 Boolean valid = null;
                 int i = rs.getInt("jobInfo_valid");
                 if (!rs.wasNull()) {
-                    valid = i == 0 ? false : true;
+                    valid = i != 0;
                 }
 
                 // JobInfo
                 JobInfo jobInfo;
-                if (content == null && contentType == null) {
+                if (contentList == null && contentType == null) {
                     jobInfo = null;
                 } else {
-                    jobInfo = new JobInfo(content, contentType, valid);
+                    jobInfo = contentList == null ? null : new JobInfo(contentList, contentType, valid);
                 }
 
                 Date lastModified = rs.getTimestamp("lastModified", cal);

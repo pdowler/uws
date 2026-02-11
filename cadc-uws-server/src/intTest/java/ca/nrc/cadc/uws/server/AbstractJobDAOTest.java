@@ -398,7 +398,7 @@ public abstract class AbstractJobDAOTest
         {
             // valid
             job = createJob();
-            job.setJobInfo(new JobInfo("<foo/>", "text/xml", Boolean.TRUE));
+            job.setJobInfo(new JobInfo(List.of("<testValid/>","<foo/>"), "text/xml", Boolean.TRUE));
             JobDAO dao = getDAO();
             after = dao.put(job);
             compareJobs("returned", job, after);
@@ -408,7 +408,7 @@ public abstract class AbstractJobDAOTest
 
             // valid, no type
             job = createJob();
-            job.setJobInfo(new JobInfo("<foo/>", null, Boolean.TRUE));
+            job.setJobInfo(new JobInfo(List.of("<testValidNoType/>","<foo/>"), null, Boolean.TRUE));
             after = dao.put(job);
             compareJobs("returned", job, after);
             persisted = dao.get(job.getID());
@@ -417,7 +417,7 @@ public abstract class AbstractJobDAOTest
 
             // invalid
             job = createJob();
-            job.setJobInfo(new JobInfo("<foo>", "text/xml", Boolean.FALSE));
+            job.setJobInfo(new JobInfo(List.of("<testInvalid/>","<foo>"), "text/xml", Boolean.FALSE));
             after = dao.put(job);
             compareJobs("returned", job, after);
             persisted = dao.get(job.getID());
@@ -1044,7 +1044,7 @@ public abstract class AbstractJobDAOTest
             Job persisted = dao.get(job.getID());
             
             // add JobInfo
-            JobInfo ji = new JobInfo("<foo>hello</foo>", "text/xml", true);
+            JobInfo ji = new JobInfo(List.of("<foo>hello</foo>"), "text/xml", true);
             persisted.setJobInfo(ji);
             dao.put(persisted);
             Job updated = dao.get(job.getID());

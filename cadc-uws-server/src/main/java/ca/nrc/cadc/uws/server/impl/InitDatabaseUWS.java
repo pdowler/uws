@@ -97,7 +97,8 @@ public class InitDatabaseUWS extends InitDatabase {
     };
 
     public static final String[] UPGRADE_SQL = new String[]{
-        "uws.upgrade-1.2.18.sql"
+        "uws.upgrade-1.2.18.sql",
+        "uws.upgrade-1.2.19.sql"
     };
 
     public static final String[] MAINT_SQL = new String[]{
