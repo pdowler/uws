@@ -387,7 +387,8 @@ public class JobReaderWriterTest {
             Job job = createPendingJob();
             String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><foo />";
             String type = "text/xml";
-            JobInfo info = new JobInfo(List.of(xml), type, true);
+            JobInfo info = new JobInfo(type, true);
+            info.getContent().add(xml);
             job.setJobInfo(info);
             roundTripVerify(job);
         } catch (Exception unexpected) {
@@ -403,7 +404,8 @@ public class JobReaderWriterTest {
             Job job = createPendingJob();
             String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><foo>";
             String type = "text/xml";
-            JobInfo info = new JobInfo(List.of(xml), type, Boolean.FALSE);
+            JobInfo info = new JobInfo(type, Boolean.FALSE);
+            info.getContent().add(xml);
             job.setJobInfo(info);
             roundTripVerify(job);
         } catch (Exception unexpected) {
@@ -446,7 +448,8 @@ public class JobReaderWriterTest {
             content.append("<foons:foo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
             content.append("           xmlns:foons=\"http://localhost/bar\">");
             content.append("</foons:foo>");
-            JobInfo jobInfo = new JobInfo(List.of(content.toString()), "text/xml", true);
+            JobInfo jobInfo = new JobInfo("text/xml", true);
+            jobInfo.getContent().add(content.toString());
             job.setJobInfo(jobInfo);
 
             // Write Job to XML.
@@ -480,7 +483,8 @@ public class JobReaderWriterTest {
             content.append("<foons:foo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
             content.append("           xmlns:foons=\"http://localhost/foo.xsd\">");
             content.append("</foons:foo>");
-            JobInfo jobInfo = new JobInfo(List.of(content.toString()), "text/xml", true);
+            JobInfo jobInfo = new JobInfo("text/xml", true);
+            jobInfo.getContent().add(content.toString());
             job.setJobInfo(jobInfo);
 
             // Write Job to XML.
@@ -525,7 +529,8 @@ public class JobReaderWriterTest {
             bar.append("</foons:bar>");
             content.add(bar.toString());
 
-            JobInfo jobInfo = new JobInfo(content, "text/xml", true);
+            JobInfo jobInfo = new JobInfo("text/xml", true);
+            jobInfo.getContent().add(content.toString());
             job.setJobInfo(jobInfo);
 
             // Write Job to XML.
@@ -563,7 +568,8 @@ public class JobReaderWriterTest {
                     "This is line three."
             );
 
-            JobInfo jobInfo = new JobInfo(content, "text/plain", true);
+            JobInfo jobInfo = new JobInfo("text/plain", true);
+            jobInfo.getContent().add(content.toString());
             job.setJobInfo(jobInfo);
 
             // Write Job to XML

@@ -224,10 +224,8 @@ public class Job {
             }
         }
         if (job.getJobInfo() != null) {
-            this.jobInfo = new JobInfo(
-                    job.getJobInfo().getContent(),
-                    job.getJobInfo().getContentType(),
-                    job.getJobInfo().getValid());
+            this.jobInfo = new JobInfo(job.getJobInfo().getContentType(), job.getJobInfo().getValid());
+            this.jobInfo.getContent().addAll(job.getJobInfo().getContent());
         }
     }
 

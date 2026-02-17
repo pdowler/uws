@@ -358,7 +358,8 @@ public class JobReader {
             List<Element> children = e.getChildren();
             for (Element child : children) {
                 try {
-                    Document jiDoc = new Document(child.clone());
+                    child.detach();
+                    Document jiDoc = new Document(child);
                     XMLOutputter outputter = new XMLOutputter();
                     StringWriter sw = new StringWriter();
                     outputter.output(jiDoc, sw);
@@ -374,7 +375,8 @@ public class JobReader {
                 return null;
             }
 
-            rtn = new JobInfo(contentList, null, null);
+            rtn = new JobInfo(null, null);
+            rtn.getContent().addAll(contentList);
             log.debug("parseJobInfo: " + rtn);
         }
         return rtn;

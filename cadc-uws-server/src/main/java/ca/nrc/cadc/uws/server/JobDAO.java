@@ -1735,7 +1735,10 @@ public class JobDAO {
                 if (contentList == null && contentType == null) {
                     jobInfo = null;
                 } else {
-                    jobInfo = contentList == null ? null : new JobInfo(contentList, contentType, valid);
+                    jobInfo = new JobInfo(contentType, valid);
+                    if (contentList != null) {
+                        jobInfo.getContent().addAll(contentList);
+                    }
                 }
 
                 Date lastModified = rs.getTimestamp("lastModified", cal);

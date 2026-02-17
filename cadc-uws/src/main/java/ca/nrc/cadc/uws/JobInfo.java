@@ -69,6 +69,7 @@
 
 package ca.nrc.cadc.uws;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,18 +78,13 @@ import java.util.List;
  */
 public class JobInfo {
 
-    private List<String> content;
+    private final List<String> content = new ArrayList<>();
     private String contentType;
     private Boolean valid;
 
-    public JobInfo(List<String> content, String contentType, Boolean valid) {
-        this.content = content;
+    public JobInfo(String contentType, Boolean valid) {
         this.contentType = contentType;
         this.valid = valid;
-    }
-
-    public void setContent(List<String> content) {
-        this.content = content;
     }
 
     public List<String> getContent() {
