@@ -398,7 +398,10 @@ public abstract class AbstractJobDAOTest
         {
             // valid
             job = createJob();
-            job.setJobInfo(new JobInfo("<foo/>", "text/xml", Boolean.TRUE));
+            JobInfo jobInfo = new JobInfo("text/xml", Boolean.TRUE);
+            jobInfo.getContent().addAll(List.of("<testValid/>", "<foo/>"));
+            job.setJobInfo(jobInfo);
+
             JobDAO dao = getDAO();
             after = dao.put(job);
             compareJobs("returned", job, after);
@@ -408,7 +411,9 @@ public abstract class AbstractJobDAOTest
 
             // valid, no type
             job = createJob();
-            job.setJobInfo(new JobInfo("<foo/>", null, Boolean.TRUE));
+            JobInfo validNoTypejobInfo = new JobInfo(null, Boolean.TRUE);
+            validNoTypejobInfo.getContent().addAll(List.of("<testValidNoType/>", "<foo/>"));
+            job.setJobInfo(validNoTypejobInfo);
             after = dao.put(job);
             compareJobs("returned", job, after);
             persisted = dao.get(job.getID());
@@ -417,7 +422,9 @@ public abstract class AbstractJobDAOTest
 
             // invalid
             job = createJob();
-            job.setJobInfo(new JobInfo("<foo>", "text/xml", Boolean.FALSE));
+            JobInfo invalidJobInfo = new JobInfo("text/xml", Boolean.FALSE);
+            invalidJobInfo.getContent().addAll(List.of("<testInvalid/>", "<foo>"));
+            job.setJobInfo(invalidJobInfo);
             after = dao.put(job);
             compareJobs("returned", job, after);
             persisted = dao.get(job.getID());
@@ -1044,7 +1051,8 @@ public abstract class AbstractJobDAOTest
             Job persisted = dao.get(job.getID());
             
             // add JobInfo
-            JobInfo ji = new JobInfo("<foo>hello</foo>", "text/xml", true);
+            JobInfo ji = new JobInfo("text/xml", true);
+            ji.getContent().add("<foo>hello</foo>");
             persisted.setJobInfo(ji);
             dao.put(persisted);
             Job updated = dao.get(job.getID());

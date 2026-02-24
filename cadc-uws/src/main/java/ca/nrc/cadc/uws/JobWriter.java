@@ -69,7 +69,7 @@
 
 package ca.nrc.cadc.uws;
 
-import ca.nrc.cadc.date.DateUtil;
+import ca.nrc.cadc.net.ContentType;
 import ca.nrc.cadc.xml.XmlUtil;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -78,6 +78,8 @@ import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -453,13 +455,33 @@ public class JobWriter {
 
             if (jobInfo.getContent() != null && jobInfo.getValid() != null && jobInfo.getValid()) {
                 element = new Element(JobAttribute.JOB_INFO.getValue(), UWS.NS);
-                try {
-                    // The JobInfo content can't be validated since the schema(s) aren't known
-                    // but we still need to parse and extract the root/document element
-                    Document doc = XmlUtil.buildDocument(jobInfo.getContent());
-                    element.addContent(doc.getRootElement().detach());
-                } catch (Exception e) {
-                    element = null;
+
+                ContentType ct = new ContentType(jobInfo.getContentType());
+
+                if (!ct.getBaseType().endsWith("xml")) { // treat as plain text
+                    String merged = jobInfo.getContent().stream().filter(s -> s != null && !s.isBlank())
+                            .collect(Collectors.joining("\n"));
+
+                    if (!merged.isEmpty()) {
+                        Element textElem = new Element("content");
+                        textElem.setText(merged);
+                        element.addContent(textElem);
+                    }
+                } else {
+                    for (String part : jobInfo.getContent()) {
+                        if (part == null || part.isBlank()) {
+                            continue;
+                        }
+
+                        try {
+                            // The JobInfo content can't be validated since the schema(s) aren't known
+                            // but we still need to parse and extract the root/document element
+                            Document doc = XmlUtil.buildDocument(part);
+                            element.addContent(doc.getRootElement().detach());
+                        } catch (Exception e) {
+                            element = null;
+                        }
+                    }
                 }
             }
         }

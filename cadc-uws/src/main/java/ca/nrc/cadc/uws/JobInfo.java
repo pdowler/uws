@@ -69,28 +69,41 @@
 
 package ca.nrc.cadc.uws;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author jburke
  */
 public class JobInfo {
 
-    private String content;
+    private final List<String> content = new ArrayList<>();
     private String contentType;
     private Boolean valid;
 
+    @Deprecated
     public JobInfo(String content, String contentType, Boolean valid) {
-        this.content = content;
+        this.content.add(content);
+        this.contentType = contentType;
+        this.valid = valid;
+    }
+    
+    public JobInfo(String contentType, Boolean valid) {
         this.contentType = contentType;
         this.valid = valid;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getContent() {
+    public List<String> getContent() {
         return content;
+    }
+    
+    @Deprecated
+    public String getFirstContent() {
+        if (content.isEmpty()) {
+            return null;
+        }
+        return content.get(0);
     }
 
     public void setContentType(String contentType) {

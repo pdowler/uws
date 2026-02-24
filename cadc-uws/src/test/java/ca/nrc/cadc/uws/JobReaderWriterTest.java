@@ -387,7 +387,8 @@ public class JobReaderWriterTest {
             Job job = createPendingJob();
             String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><foo />";
             String type = "text/xml";
-            JobInfo info = new JobInfo(xml, type, true);
+            JobInfo info = new JobInfo(type, true);
+            info.getContent().add(xml);
             job.setJobInfo(info);
             roundTripVerify(job);
         } catch (Exception unexpected) {
@@ -403,7 +404,8 @@ public class JobReaderWriterTest {
             Job job = createPendingJob();
             String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><foo>";
             String type = "text/xml";
-            JobInfo info = new JobInfo(xml, type, Boolean.FALSE);
+            JobInfo info = new JobInfo(type, Boolean.FALSE);
+            info.getContent().add(xml);
             job.setJobInfo(info);
             roundTripVerify(job);
         } catch (Exception unexpected) {
@@ -446,7 +448,8 @@ public class JobReaderWriterTest {
             content.append("<foons:foo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
             content.append("           xmlns:foons=\"http://localhost/bar\">");
             content.append("</foons:foo>");
-            JobInfo jobInfo = new JobInfo(content.toString(), "text/xml", true);
+            JobInfo jobInfo = new JobInfo("text/xml", true);
+            jobInfo.getContent().add(content.toString());
             job.setJobInfo(jobInfo);
 
             // Write Job to XML.
@@ -480,7 +483,8 @@ public class JobReaderWriterTest {
             content.append("<foons:foo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
             content.append("           xmlns:foons=\"http://localhost/foo.xsd\">");
             content.append("</foons:foo>");
-            JobInfo jobInfo = new JobInfo(content.toString(), "text/xml", true);
+            JobInfo jobInfo = new JobInfo("text/xml", true);
+            jobInfo.getContent().add(content.toString());
             job.setJobInfo(jobInfo);
 
             // Write Job to XML.
@@ -495,6 +499,94 @@ public class JobReaderWriterTest {
             } catch (Exception e) {
                 Assert.fail("JobReader should not throw exception " + e.getMessage());
             }
+        } catch (Exception unexpected) {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testJobReaderWithMultipleJobInfoChildren() {
+        log.debug("testJobReaderWithMultipleJobInfoChildren");
+        try {
+            // Create a Job.
+            Job job = createPendingJob();
+
+            // Create JobInfo with multiple XML child elements
+            List<String> content = new ArrayList<>();
+
+            StringBuilder foo = new StringBuilder();
+            foo.append("<?xml version=\"1.0\" ?>");
+            foo.append("<foons:foo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+            foo.append("           xmlns:foons=\"http://localhost/foo.xsd\">");
+            foo.append("</foons:foo>");
+            content.add(foo.toString());
+
+            StringBuilder bar = new StringBuilder();
+            bar.append("<?xml version=\"1.0\" ?>");
+            bar.append("<foons:bar xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+            bar.append("           xmlns:foons=\"http://localhost/foo.xsd\">");
+            bar.append("</foons:bar>");
+            content.add(bar.toString());
+
+            JobInfo jobInfo = new JobInfo("text/xml", true);
+            jobInfo.getContent().add(content.toString());
+            job.setJobInfo(jobInfo);
+
+            // Write Job to XML.
+            String xml = toXML(job);
+            log.info("JobInfo - text/xml :\n" + xml);
+
+            // Create a validating JobReader with a schema for the JobInfo content.
+            Map<String, String> map = new HashMap<>();
+            map.put("http://localhost/foo.xsd", "file:test/src/resources/foo.xsd");
+
+            JobReader jobReader = new JobReader(map);
+            try {
+                jobReader.read(new StringReader(xml));
+            } catch (Exception e) {
+                Assert.fail("JobReader should not throw exception: " + e.getMessage());
+            }
+
+        } catch (Exception unexpected) {
+            log.error("unexpected exception", unexpected);
+            Assert.fail("unexpected exception: " + unexpected);
+        }
+    }
+
+    @Test
+    public void testJobReaderWithTextPlainMultiLineJobInfo() {
+        log.debug("testJobReaderWithTextPlainMultiLineJobInfo");
+        try {
+            // Create a Job
+            Job job = createPendingJob();
+
+            // Create JobInfo with multiple text/plain parts
+            List<String> content = List.of(
+                    "This is line one.",
+                    "This is line two.",
+                    "This is line three."
+            );
+
+            JobInfo jobInfo = new JobInfo("text/plain", true);
+            jobInfo.getContent().add(content.toString());
+            job.setJobInfo(jobInfo);
+
+            // Write Job to XML
+            String xml = toXML(job);
+            log.info("JobInfo - text/plain :\n" + xml);
+
+            // Create a validating JobReader with a schema for the JobInfo content.
+            Map<String, String> map = new HashMap<>();
+            map.put("http://localhost/foo.xsd", "file:test/src/resources/foo.xsd");
+
+            JobReader jobReader = new JobReader(map);
+            try {
+                jobReader.read(new StringReader(xml));
+            } catch (Exception e) {
+                Assert.fail("JobReader should not throw exception: " + e.getMessage());
+            }
+
         } catch (Exception unexpected) {
             log.error("unexpected exception", unexpected);
             Assert.fail("unexpected exception: " + unexpected);
