@@ -82,6 +82,13 @@ public class JobInfo {
     private String contentType;
     private Boolean valid;
 
+    @Deprecated
+    public JobInfo(String content, String contentType, Boolean valid) {
+        this.content.add(content);
+        this.contentType = contentType;
+        this.valid = valid;
+    }
+    
     public JobInfo(String contentType, Boolean valid) {
         this.contentType = contentType;
         this.valid = valid;
@@ -89,6 +96,14 @@ public class JobInfo {
 
     public List<String> getContent() {
         return content;
+    }
+    
+    @Deprecated
+    public String getFirstContent() {
+        if (content.isEmpty()) {
+            return null;
+        }
+        return content.get(0);
     }
 
     public void setContentType(String contentType) {
